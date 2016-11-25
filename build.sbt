@@ -11,8 +11,5 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-mllib" % "2.0.0",
   "org.apache.spark" %% "spark-sql" % "2.0.0",
   "com.databricks" %% "spark-csv" % "1.5.0",
-  "org.specs2" %% "specs2" % "3.7",
-  "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2" % "compile",
-  "org.slf4j" % "slf4j-api" % "1.7.21" % "compile",
-  "ch.qos.logback" % "logback-classic" % "1.1.7" % "runtime"
+  "org.specs2" %% "specs2" % "3.7" % "test"
 )
