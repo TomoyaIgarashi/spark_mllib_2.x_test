@@ -35,7 +35,7 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
         answer must beCloseTo(-0.3, 0.1)
       }
 
-      """User similarity ranking""".stripMargin >> {
+      """User similarity ranking""".stripMargin >> pending {
         import spark.implicits._
 
         val user1 = 1
