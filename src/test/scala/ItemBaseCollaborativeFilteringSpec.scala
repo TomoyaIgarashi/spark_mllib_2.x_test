@@ -25,7 +25,7 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     .withColumnRenamed("movieId", "movie_id")
   sourceDataFrame.createOrReplaceTempView("movie_ratings")
 
-  """Item similarity""".stripMargin >> {
+  """Recommender System""".stripMargin >> {
     """Positive case""".stripMargin >> {
       """User1 and User2 correlation""".stripMargin >> pending {
         val user1 = 1
@@ -35,20 +35,13 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
         answer must beCloseTo(-0.3, 0.1)
       }
 
-      """Similarity ranking""".stripMargin >> pending {
+      """User similarity ranking""".stripMargin >> {
         import spark.implicits._
 
         val user1 = 1
-        val sqlNonUser1IDs = spark.sql(
-          s"""SELECT DISTINCT user_id FROM movie_ratings WHERE user_id <> $user1""".stripMargin)
-        val nonUser1IDs = sqlNonUser1IDs.select("user_id").map(_.getInt(0)).collect
-        val correlations = nonUser1IDs.map(userX => (userX, getCorrelation(user1, userX)))
-        val ranking = spark.sparkContext.parallelize(correlations).toDF
-        val sorted = ranking
-          .withColumnRenamed("_1", "user_id")
-          .withColumnRenamed("_2", "correlation")
-          .sort($"correlation".desc)
-        sorted.show()
+        val correlations = getCorrelations(user1)
+        val availables = correlations.filter($"correlation".isNaN =!= true and $"correlation" > 0.0)
+        availables.describe().show(false)
 
         true must_== true
       }
@@ -68,6 +61,16 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
   step {
     logger.info("final step")
     spark.stop()
+  }
+
+  def getCorrelations(user1: Int) = {
+    import spark.implicits._
+
+    val sqlNonUser1IDs = spark.sql(
+      s"""SELECT DISTINCT user_id FROM movie_ratings WHERE user_id <> $user1""".stripMargin)
+    val nonUser1IDs = sqlNonUser1IDs.select("user_id").map(_.getInt(0)).collect
+    val correlations = nonUser1IDs.map(userX => (userX, getCorrelation(user1, userX)))
+    spark.sparkContext.parallelize(correlations).toDF("user_id", "correlation")
   }
 
   def getCorrelation(user1: Int, user2: Int): Double = {
@@ -111,5 +114,4 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     val lineNumber = element.getLineNumber()
     logger.info(s"$fileName:$lineNumber $className#$methodName")
   }
-
 }
