@@ -87,8 +87,7 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
          |b.correlation as correlation
          |FROM not_user1s as a
          |LEFT OUTER JOIN correlations as b ON a.user_id = b.user_id""".stripMargin)
-    intermediateItemBased1.createOrReplaceTempView(
-      "intermediate_item_based1")
+    intermediateItemBased1.createOrReplaceTempView("intermediate_item_based1")
     spark.sql(
       s"""SELECT movie_id, (SUM(score) / SUM(correlation)) as recommendation FROM intermediate_item_based1
          |GROUP BY movie_id""".stripMargin)
