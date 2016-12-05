@@ -45,6 +45,14 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
 
         true must_== true
       }
+
+      """Item recommendation based on user similarity""".stripMargin >> pending {
+        val user1 = 1
+        val itemBased = itemRecommendationBasedOnUserSimilarity(user1)
+        itemBased.describe().show()
+
+        true must_== true
+      }
     }
 
     """Negative case""".stripMargin >> {
@@ -61,6 +69,29 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
   step {
     logger.info("final step")
     spark.stop()
+  }
+
+  def itemRecommendationBasedOnUserSimilarity(user1: Int) = {
+    import spark.implicits._
+
+    val correlations = getCorrelations(user1)
+    val availables = correlations.filter($"correlation".isNaN =!= true and $"correlation" > 0.0)
+    availables.createOrReplaceTempView("correlations")
+    val notUser1s = spark.sql(
+      s"""SELECT * FROM movie_ratings WHERE user_id <> $user1""".stripMargin)
+    notUser1s.createOrReplaceTempView("not_user1s")
+    val intermediateItemBased1 = spark.sql(
+      s"""SELECT
+         |a.movie_id,
+         |(b.correlation * a.rating) as score,
+         |b.correlation as correlation
+         |FROM not_user1s as a
+         |LEFT OUTER JOIN correlations as b ON a.user_id = b.user_id""".stripMargin)
+    intermediateItemBased1.createOrReplaceTempView(
+      "intermediate_item_based1")
+    spark.sql(
+      s"""SELECT movie_id, (SUM(score) / SUM(correlation)) as recommendation FROM intermediate_item_based1
+         |GROUP BY movie_id""".stripMargin)
   }
 
   def getCorrelations(user1: Int) = {
