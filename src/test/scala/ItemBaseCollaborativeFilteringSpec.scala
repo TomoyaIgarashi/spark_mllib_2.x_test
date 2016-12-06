@@ -24,12 +24,12 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     .load(filePath)
     .withColumnRenamed("userId", "user_id")
     .withColumnRenamed("movieId", "movie_id")
-  sourceDataFrame.createOrReplaceTempView("movie_ratings")
+  private val ratingTableName = "movie_ratings"
+  sourceDataFrame.createOrReplaceTempView(s"$ratingTableName")
 
   """Recommender System""".stripMargin >> {
     """Positive case""".stripMargin >> {
-      """User1 and User2 correlation""".stripMargin >> {
-        val ratingTableName = "movie_ratings"
+      """User1 and User2 correlation""".stripMargin >> pending {
         val aggregateColumn = "user_id"
         val ratingTargetColumn = "movie_id"
         val user1 = 1
@@ -39,11 +39,13 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
         answer must beCloseTo(-0.3, 0.1)
       }
 
-      """User similarity ranking""".stripMargin >> pending {
+      """Correlation ranking based on User similarity""".stripMargin >> pending {
         import spark.implicits._
 
+        val aggregateColumn = "user_id"
+        val ratingTargetColumn = "movie_id"
         val user1 = 1
-        val correlations = getCorrelations(user1)
+        val correlations = Recommender.getCorrelations(ratingTableName, aggregateColumn, ratingTargetColumn, user1)
         val availables = correlations.filter($"correlation".isNaN =!= true and $"correlation" > 0.0)
         availables.describe().show(false)
 
@@ -60,8 +62,7 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     }
 
     """Negative case""".stripMargin >> {
-      """Not exists users""".stripMargin >> {
-        val ratingTableName = "movie_ratings"
+      """Not exists users""".stripMargin >> pending {
         val aggregateColumn = "user_id"
         val ratingTargetColumn = "movie_id"
         val user1 = 0
@@ -98,19 +99,6 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     spark.sql(
       s"""SELECT movie_id, (SUM(score) / SUM(correlation)) as recommendation FROM intermediate_item_based1
          |GROUP BY movie_id""".stripMargin)
-  }
-
-  def getCorrelations(user1: Int) = {
-    import spark.implicits._
-
-    val sqlNonUser1IDs = spark.sql(
-      s"""SELECT DISTINCT user_id FROM movie_ratings WHERE user_id <> $user1""".stripMargin)
-    val nonUser1IDs = sqlNonUser1IDs.select("user_id").map(_.getInt(0)).collect
-    val ratingTableName = "movie_ratings"
-    val aggregateColumn = "user_id"
-    val ratingTargetColumn = "movie_id"
-    val correlations = nonUser1IDs.map(userX => (userX, Recommender.getCorrelation(ratingTableName, aggregateColumn, ratingTargetColumn, user1, userX)))
-    spark.sparkContext.parallelize(correlations).toDF("user_id", "correlation")
   }
 
   def printCodeInfo(): Unit = {

@@ -7,6 +7,16 @@ import org.apache.spark.sql.SparkSession
   * Created by tomoya.igarashi on 2016/12/05.
   */
 object Recommender {
+  def getCorrelations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
+    import sparkSession.implicits._
+
+    val sqlNonAggregate1IDs = sparkSession.sql(
+      s"""SELECT DISTINCT $aggregateColumn FROM $ratingTableName WHERE $aggregateColumn <> $aggregate1""".stripMargin)
+    val nonAggregate1IDs = sqlNonAggregate1IDs.select(s"$aggregateColumn").map(_.getInt(0)).collect
+    val correlations = nonAggregate1IDs.map(aggregateOther => (aggregateOther, Recommender.getCorrelation(ratingTableName, aggregateColumn, ratingTargetColumn, aggregate1, aggregateOther)))
+    sparkSession.sparkContext.parallelize(correlations).toDF(s"$aggregateColumn", "correlation")
+  }
+
   def getCorrelation(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String,
                      aggregate1: Int, aggregate2: Int)(implicit sparkSession: SparkSession): Double = {
     import sparkSession.implicits._
