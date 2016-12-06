@@ -52,11 +52,11 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
         true must_== true
       }
 
-      """Item recommendation based on user similarity""".stripMargin >> pending {
+      """Recommend item based on user similarity""".stripMargin >> pending {
         val aggregateColumn = "user_id"
         val ratingTargetColumn = "movie_id"
         val user1 = 1
-        val itemBased = Recommender.itemRecommendationBasedOnUserSimilarity(ratingTableName, aggregateColumn, ratingTargetColumn, user1)
+        val itemBased = Recommender.getRecommendations(ratingTableName, aggregateColumn, ratingTargetColumn, user1)
         itemBased.describe().show(false)
 
         true must_== true

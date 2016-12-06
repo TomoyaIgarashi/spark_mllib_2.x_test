@@ -7,7 +7,7 @@ import org.apache.spark.sql.SparkSession
   * Created by tomoya.igarashi on 2016/12/05.
   */
 object Recommender {
-  def itemRecommendationBasedOnUserSimilarity(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
+  def getRecommendations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
     import sparkSession.implicits._
 
     val correlations = Recommender.getCorrelations(ratingTableName, aggregateColumn, ratingTargetColumn, aggregate1)
