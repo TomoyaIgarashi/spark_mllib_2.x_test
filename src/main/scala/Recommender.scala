@@ -7,6 +7,28 @@ import org.apache.spark.sql.SparkSession
   * Created by tomoya.igarashi on 2016/12/05.
   */
 object Recommender {
+  def itemRecommendationBasedOnUserSimilarity(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
+    import sparkSession.implicits._
+
+    val correlations = Recommender.getCorrelations(ratingTableName, aggregateColumn, ratingTargetColumn, aggregate1)
+    val availables = correlations.filter($"correlation".isNaN =!= true and $"correlation" > 0.0)
+    availables.createOrReplaceTempView("correlations")
+    val nonAggregate1s = sparkSession.sql(
+      s"""SELECT * FROM $ratingTableName WHERE $aggregateColumn <> $aggregate1""".stripMargin)
+    nonAggregate1s.createOrReplaceTempView("non_aggregate1s")
+    val intermediate1 = sparkSession.sql(
+      s"""SELECT
+         |a.$ratingTargetColumn,
+         |(b.correlation * a.rating) as score,
+         |b.correlation as correlation
+         |FROM non_aggregate1s as a
+         |LEFT OUTER JOIN correlations as b ON a.$aggregateColumn = b.$aggregateColumn""".stripMargin)
+    intermediate1.createOrReplaceTempView("intermediate1")
+    sparkSession.sql(
+      s"""SELECT $ratingTargetColumn, (SUM(score) / SUM(correlation)) as recommendation FROM intermediate1
+         |GROUP BY $ratingTargetColumn""".stripMargin)
+  }
+
   def getCorrelations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
     import sparkSession.implicits._
 
