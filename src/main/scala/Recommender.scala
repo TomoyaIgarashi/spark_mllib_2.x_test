@@ -7,12 +7,10 @@ import org.apache.spark.sql.SparkSession
   * Created by tomoya.igarashi on 2016/12/05.
   */
 object Recommender {
-  def getCorrelation(aggregate1: Int, aggregate2: Int)(implicit sparkSession: SparkSession): Double = {
+  def getCorrelation(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String,
+                     aggregate1: Int, aggregate2: Int)(implicit sparkSession: SparkSession): Double = {
     import sparkSession.implicits._
 
-    val ratingTableName = "movie_ratings"
-    val aggregateColumn = "user_id"
-    val ratingTargetColumn = "movie_id"
     val sqlIntersectedRatingTargetIDs = sparkSession.sql(
       s"""SELECT $ratingTargetColumn FROM $ratingTableName WHERE $aggregateColumn = $aggregate1
          |INTERSECT

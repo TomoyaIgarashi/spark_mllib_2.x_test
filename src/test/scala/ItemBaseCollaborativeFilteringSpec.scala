@@ -29,9 +29,12 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
   """Recommender System""".stripMargin >> {
     """Positive case""".stripMargin >> {
       """User1 and User2 correlation""".stripMargin >> {
+        val ratingTableName = "movie_ratings"
+        val aggregateColumn = "user_id"
+        val ratingTargetColumn = "movie_id"
         val user1 = 1
         val user2 = 2
-        val answer = Recommender.getCorrelation(user1, user2)
+        val answer = Recommender.getCorrelation(ratingTableName, aggregateColumn, ratingTargetColumn, user1, user2)
 
         answer must beCloseTo(-0.3, 0.1)
       }
@@ -58,9 +61,12 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
 
     """Negative case""".stripMargin >> {
       """Not exists users""".stripMargin >> {
+        val ratingTableName = "movie_ratings"
+        val aggregateColumn = "user_id"
+        val ratingTargetColumn = "movie_id"
         val user1 = 0
         val user2 = 0
-        val answer = Recommender.getCorrelation(user1, user2)
+        val answer = Recommender.getCorrelation(ratingTableName, aggregateColumn, ratingTargetColumn, user1, user2)
 
         answer must beCloseTo(0.0, 0.001)
       }
@@ -100,7 +106,10 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     val sqlNonUser1IDs = spark.sql(
       s"""SELECT DISTINCT user_id FROM movie_ratings WHERE user_id <> $user1""".stripMargin)
     val nonUser1IDs = sqlNonUser1IDs.select("user_id").map(_.getInt(0)).collect
-    val correlations = nonUser1IDs.map(userX => (userX, Recommender.getCorrelation(user1, userX)))
+    val ratingTableName = "movie_ratings"
+    val aggregateColumn = "user_id"
+    val ratingTargetColumn = "movie_id"
+    val correlations = nonUser1IDs.map(userX => (userX, Recommender.getCorrelation(ratingTableName, aggregateColumn, ratingTargetColumn, user1, userX)))
     spark.sparkContext.parallelize(correlations).toDF("user_id", "correlation")
   }
 
