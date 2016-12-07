@@ -52,6 +52,19 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
         true must_== true
       }
 
+      """Correlation ranking based on Movie similarity""".stripMargin >> {
+        import spark.implicits._
+
+        val aggregateColumn = "movie_id"
+        val ratingTargetColumn = "user_id"
+        val movie1 = 1
+        val correlations = Recommender.getCorrelations(ratingTableName, aggregateColumn, ratingTargetColumn, movie1)
+        val availables = correlations.filter($"correlation".isNaN =!= true and $"correlation" > 0.0)
+        availables.describe().show(false)
+
+        true must_== true
+      }
+
       """Recommend item based on user similarity""".stripMargin >> pending {
         val aggregateColumn = "user_id"
         val ratingTargetColumn = "movie_id"
