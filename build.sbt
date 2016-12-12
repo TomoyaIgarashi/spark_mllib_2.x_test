@@ -17,10 +17,15 @@ scalacOptions ++= Seq(
   "-Xelide-below", "ALL"
 )
 
-libraryDependencies ++= Seq(
+libraryDependencies ++= (Seq( // apache spark
   "org.apache.spark" %% "spark-core" % "2.0.0",
   "org.apache.spark" %% "spark-mllib" % "2.0.0",
   "org.apache.spark" %% "spark-sql" % "2.0.0",
-  "com.databricks" %% "spark-csv" % "1.5.0",
+  "com.databricks" %% "spark-csv" % "1.5.0"
+) ++ Seq( // specs2
   "org.specs2" %% "specs2" % "3.7" % "test"
-)
+) ++ Seq( // apache commons-io
+  "org.apache.commons" % "commons-io" % "1.3.2"
+) ++ Seq( // opencsv
+  "net.sf.opencsv" % "opencsv" % "2.3"
+))

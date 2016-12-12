@@ -7,6 +7,9 @@
       <option name="featureWarnings" value="true" />
       <parameters>
         <parameter value="-Xlint" />
+        <parameter value="-Ywarn-dead-code" />
+        <parameter value="-Ywarn-numeric-widen" />
+        <parameter value="-Ywarn-value-discard" />
         <parameter value="-Xelide-below" />
         <parameter value="ALL" />
       </parameters>
