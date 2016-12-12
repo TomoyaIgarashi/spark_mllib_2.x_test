@@ -52,7 +52,7 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
         true must_== true
       }
 
-      """Correlation ranking based on Movie similarity""".stripMargin >> {
+      """Correlation ranking based on Movie similarity""".stripMargin >> pending {
         import spark.implicits._
 
         val aggregateColumn = "movie_id"
