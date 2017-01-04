@@ -18,10 +18,14 @@ scalacOptions ++= Seq(
 )
 
 libraryDependencies ++= (Seq( // apache spark
-  "org.apache.spark" %% "spark-core" % "2.0.0",
-  "org.apache.spark" %% "spark-mllib" % "2.0.0",
-  "org.apache.spark" %% "spark-sql" % "2.0.0",
+  "org.apache.spark" %% "spark-core" % "2.0.2",
+  "org.apache.spark" %% "spark-mllib" % "2.0.2",
+  "org.apache.spark" %% "spark-sql" % "2.0.2",
   "com.databricks" %% "spark-csv" % "1.5.0"
+) ++ Seq( // mysql
+  "mysql" % "mysql-connector-java" % "5.1.38"
+) ++ Seq( // typesafe config
+  "com.typesafe" % "config" % "1.3.1"
 ) ++ Seq( // specs2
   "org.specs2" %% "specs2" % "3.7" % "test"
 ) ++ Seq( // apache commons-io
