@@ -49,7 +49,7 @@ object Recommender {
          |SELECT $ratingTargetColumn FROM $ratingTableName WHERE $aggregateColumn = $aggregate2""".stripMargin)
     val intersectedRatingTargetIDs = (sqlIntersectedRatingTargetIDs
       .select(s"$ratingTargetColumn")
-      .map(_.getInt(0))
+      .map(_.getLong(0))
       .collect match {
       case a if a.length <= 1 => Array.empty[Int] // Cannot compute the covariance of a RowMatrix with <= 1 row.
       case a => a

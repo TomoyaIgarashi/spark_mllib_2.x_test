@@ -1,5 +1,7 @@
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types._
 import org.specs2.mutable.Specification
 
 import recommender.Recommender
@@ -22,6 +24,8 @@ class ItemBaseCollaborativeFilteringSpec extends Specification {
     .option("header", "true")
     .option("inferSchema", "true")
     .load(filePath)
+    .withColumn("userId", col("userId").cast(DataTypes.LongType))
+    .withColumn("movieId", col("movieId").cast(DataTypes.LongType))
     .withColumnRenamed("userId", "user_id")
     .withColumnRenamed("movieId", "movie_id")
   private val ratingTableName = "movie_ratings"
