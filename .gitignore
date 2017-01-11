@@ -1,3 +1,5 @@
+local.conf
+
 .*.swp
 
 metastore_db/

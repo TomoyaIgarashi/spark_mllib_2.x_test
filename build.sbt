@@ -24,6 +24,9 @@ libraryDependencies ++= (Seq( // apache spark
   "com.databricks" %% "spark-csv" % "1.5.0"
 ) ++ Seq( // mysql
   "mysql" % "mysql-connector-java" % "5.1.38"
+) ++ Seq( // slick
+  "com.typesafe.slick" %% "slick" % "3.1.1",
+  "org.slf4j" % "slf4j-nop" % "1.6.4"
 ) ++ Seq( // typesafe config
   "com.typesafe" % "config" % "1.3.1"
 ) ++ Seq( // specs2
