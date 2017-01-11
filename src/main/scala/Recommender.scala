@@ -7,7 +7,7 @@ import org.apache.spark.sql.SparkSession
   * Created by tomoya.igarashi on 2016/12/05.
   */
 object Recommender {
-  def getRecommendations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
+  def getRecommendations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Long)(implicit sparkSession: SparkSession) = {
     import sparkSession.implicits._
 
     val correlations = Recommender.getCorrelations(ratingTableName, aggregateColumn, ratingTargetColumn, aggregate1)
@@ -29,18 +29,18 @@ object Recommender {
          |GROUP BY $ratingTargetColumn""".stripMargin)
   }
 
-  def getCorrelations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Int)(implicit sparkSession: SparkSession) = {
+  def getCorrelations(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String, aggregate1: Long)(implicit sparkSession: SparkSession) = {
     import sparkSession.implicits._
 
     val sqlNonAggregate1IDs = sparkSession.sql(
       s"""SELECT DISTINCT $aggregateColumn FROM $ratingTableName WHERE $aggregateColumn <> $aggregate1""".stripMargin)
-    val nonAggregate1IDs = sqlNonAggregate1IDs.select(s"$aggregateColumn").map(_.getInt(0)).collect
+    val nonAggregate1IDs = sqlNonAggregate1IDs.select(s"$aggregateColumn").map(_.getLong(0)).collect
     val correlations = nonAggregate1IDs.map(aggregateOther => (aggregateOther, Recommender.getCorrelation(ratingTableName, aggregateColumn, ratingTargetColumn, aggregate1, aggregateOther)))
     sparkSession.sparkContext.parallelize(correlations).toDF(s"$aggregateColumn", "correlation")
   }
 
   def getCorrelation(ratingTableName: String, aggregateColumn: String, ratingTargetColumn: String,
-                     aggregate1: Int, aggregate2: Int)(implicit sparkSession: SparkSession): Double = {
+                     aggregate1: Long, aggregate2: Long)(implicit sparkSession: SparkSession): Double = {
     import sparkSession.implicits._
 
     val sqlIntersectedRatingTargetIDs = sparkSession.sql(

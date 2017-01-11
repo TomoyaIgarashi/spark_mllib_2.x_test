@@ -37,8 +37,8 @@ object MySQLConnectTest {
 
     val aggregateColumn = "user_id"
     val ratingTargetColumn = "movie_id"
-    val user1 = 1
-    val user2 = 2
+    val user1 = 1L
+    val user2 = 2L
 
     val answer = allCatch withApply { t: Throwable =>
       logger.error("Recommender.getCorrelation", t)
