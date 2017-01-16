@@ -21,6 +21,7 @@ object GetRecommendation {
     val logger = LogManager.getLogger(this.getClass)
 
     val conf = ConfigFactory.load(args(0))
+    logger.info(conf.getString("debug.message"))
 
     val db1 = Database.forConfig("db.default", conf)
     val optJobIdUserId = allCatch withApply { t =>
