@@ -84,7 +84,7 @@ object GetRecommendation {
     for {
       (jobId, userId, xs) <- recommendations if xs.nonEmpty
     } {
-      val db2 = Database.forConfig("db.default")
+      val db2 = Database.forConfig("db.default", conf)
       allCatch withApply { t: Throwable =>
         logger.error("Recommendations set error", t)
       } andFinally {
