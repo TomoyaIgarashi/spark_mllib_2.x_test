@@ -50,7 +50,6 @@ object GetRecommendation {
       (jobId, userId) <- optJobIdUserId
     } yield {
       implicit val spark = SparkSession.builder()
-        .master("local")
         .appName("GetRecommendation")
         .getOrCreate()
       import spark.sqlContext.implicits._
